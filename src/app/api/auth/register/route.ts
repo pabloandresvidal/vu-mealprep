@@ -16,7 +16,8 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ id: user.id, email: user.email });
   } catch (error: any) {
+    console.error("🟢 FATAL REGISTER ERROR:", error);
     if (error.code === 'P2002') return new NextResponse("Email already exists", { status: 400 });
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json({ error: "Internal Error", details: error.message || String(error) }, { status: 500 });
   }
 }
