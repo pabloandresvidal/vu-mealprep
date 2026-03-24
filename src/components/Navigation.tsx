@@ -24,15 +24,20 @@ export default function Navigation() {
         
         <div className="nav-user-section">
           {status === "authenticated" ? (
-            <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
               <div className="user-welcome">
                 <div className="user-welcome-title">Welcome back!</div>
-                <div className="user-welcome-sub">Ready to prep?</div>
+                <div className="user-welcome-sub">{session.user?.email}</div>
               </div>
-              <button onClick={() => signOut({ callbackUrl: "/" })} className="sign-out">
-                <span style={{ fontSize: "1.2rem" }}>[→</span> Sign Out
-              </button>
-            </>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Link href="/account" className={`pill-tab ${isActive("/account")}`} style={{ padding: '0.4rem 0.8rem', width: 'auto' }}>
+                   <span style={{ fontSize: '1.2rem' }}>👤</span>
+                </Link>
+                <button onClick={() => signOut({ callbackUrl: "/" })} className="btn btn-secondary" style={{ width: 'auto', padding: '0.4rem 0.8rem' }}>
+                   Sign Out
+                </button>
+              </div>
+            </div>
           ) : (
             <div className="nav-links">
               <Link href="/login" className="btn btn-outline">Log In</Link>
@@ -51,7 +56,7 @@ export default function Navigation() {
             <Link href="/recipes" className={`pill-tab ${isActive("/recipes")}`}>
               <span className="pill-icon-teal">🥗</span> Recipes
             </Link>
-            <Link href="/plans" className={`pill-tab ${isActive("/plans")}`}>
+            <Link href="/mealplans" className={`pill-tab ${isActive("/mealplans")}`}>
               <span className="pill-icon-green">📆</span> Meal Prep
             </Link>
             <Link href="/history" className={`pill-tab ${isActive("/history")}`}>

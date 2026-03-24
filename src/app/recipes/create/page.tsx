@@ -10,6 +10,7 @@ export default function CreateRecipePage() {
   const [data, setData] = useState({
      title: "", 
      energyLevel: "Medium", 
+     servings: 2,
      ingredients: [{ name: "", amount: "", unit: "" }], 
      miseEnPlace: [""], 
      instructions: [""]
@@ -72,17 +73,28 @@ export default function CreateRecipePage() {
             />
          </div>
 
-         <div className="form-group" style={{ marginBottom: "2rem" }}>
-            <label className="form-label" style={{ fontSize: "1.1rem" }}>Energy Required</label>
-            <select 
-               value={data.energyLevel}
-               onChange={e => setData({...data, energyLevel: e.target.value})}
-            >
-                <option value="Low">Low (Quick & Easy)</option>
-                <option value="Medium">Medium (Standard Meal)</option>
-                <option value="High">High (Elaborate Prep)</option>
-            </select>
-         </div>
+          <div className="form-row">
+            <div className="form-group">
+                <label className="form-label">Energy Required</label>
+                <select 
+                value={data.energyLevel}
+                onChange={e => setData({...data, energyLevel: e.target.value})}
+                >
+                    <option value="Low">Low (Quick & Easy)</option>
+                    <option value="Medium">Medium (Standard Meal)</option>
+                    <option value="High">High (Elaborate Prep)</option>
+                </select>
+            </div>
+            <div className="form-group">
+                <label className="form-label">Base Servings</label>
+                <input 
+                    type="number" 
+                    min={1} 
+                    value={data.servings} 
+                    onChange={e => setData({...data, servings: parseInt(e.target.value) || 1})} 
+                />
+            </div>
+          </div>
 
          {/* Ingredients */}
          <div style={{ marginBottom: "2.5rem" }}>

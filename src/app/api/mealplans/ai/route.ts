@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
     const userId = (session.user as any).id;
 
-    const { startDate, endDate, energyLevel, profileIds } = await req.json();
+    const { startDate, endDate, energyLevel, profileIds, numPeople } = await req.json();
 
     // Overlap Clash Detection
     const overlapping = await prisma.mealPlan.findFirst({
@@ -73,6 +73,7 @@ You MUST output valid JSON strictly adhering to this format:
             startDate: new Date(startDate),
             endDate: new Date(endDate),
             energyLevel,
+            numPeople: Number(numPeople) || 2,
             profiles: JSON.stringify(profiles),
             recipeRefs: JSON.stringify(generatedJson.plan)
         }

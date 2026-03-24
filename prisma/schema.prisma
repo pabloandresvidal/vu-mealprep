@@ -52,6 +52,7 @@ model MealPlan {
   startDate     DateTime
   endDate       DateTime
   energyLevel   String
+  numPeople     Int      @default(2)
   profiles      String   // JSON stringified array of profile IDs
   recipeRefs    String   // JSON stringified array of Recipe assignments
   generatedPlan String?  // JSON stringified optimization results

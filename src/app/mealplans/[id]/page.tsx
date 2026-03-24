@@ -48,16 +48,15 @@ export default function MealPlanDetailPage({ params }: { params: Promise<{ id: s
        </div>
 
        <div className="card" style={{ marginBottom: "3rem", borderTop: "4px solid var(--accent-primary)" }}>
-           <h2 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Meal Plan: {new Date(plan.startDate).toLocaleDateString()} to {new Date(plan.endDate).toLocaleDateString()}</h2>
-           <p style={{ color: "var(--text-secondary)", fontSize: "1.1rem", marginBottom: "2rem" }}>Target Energy: {plan.energyLevel}</p>
+           <h2 style={{ fontSize: "2rem", marginBottom: "0.5rem", color: 'var(--brand-teal)' }}>Meal Plan: {new Date(plan.startDate).toLocaleDateString()} to {new Date(plan.endDate).toLocaleDateString()}</h2>
+           <p style={{ color: "var(--text-secondary)", fontSize: "1.1rem", marginBottom: "2rem" }}>Target Energy: <span style={{ color: 'var(--brand-orange)', fontWeight: 700 }}>{plan.energyLevel}</span></p>
 
            <h3 style={{ textTransform: "uppercase", fontSize: "0.9rem", color: "var(--text-secondary)", letterSpacing: "1px", marginBottom: "1rem" }}>Daily Assignments</h3>
            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
                {rawRefs.map((ref: any, idx: number) => (
-                   <div key={idx} style={{ background: "rgba(255,255,255,0.03)", padding: "1.2rem", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
+                   <div key={idx} className="card" style={{ padding: "1.2rem", border: "1px solid var(--border-color)", background: "#fff" }}>
                        <strong style={{ display: "block", color: "var(--accent-primary)", marginBottom: "0.5rem" }}>{ref.date} - {ref.meal}</strong>
-                       <em style={{ fontSize: "0.9rem", display: "block", color: "var(--text-secondary)" }}>Recipe ID: {ref.recipeId}</em>
-                       <p style={{ fontSize: "0.9rem", marginTop: "0.5rem" }}>{ref.reason}</p>
+                       <p style={{ fontSize: "0.9rem", marginTop: "0.5rem", color: 'var(--brand-teal)', fontWeight: 500 }}>{ref.reason}</p>
                    </div>
                ))}
            </div>

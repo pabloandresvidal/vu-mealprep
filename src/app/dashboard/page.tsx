@@ -17,6 +17,8 @@ export default async function Dashboard() {
     orderBy: { startDate: 'asc' }
   });
 
+  const recipes = await prisma.recipe.findMany({ where: { userId: session.user.id } });
+
   return (
     <>
       <div className="dashboard-grid fade-in-up delay-1">
@@ -38,7 +40,7 @@ export default async function Dashboard() {
             <div className="card-icon-wrapper icon-green">
               📅
             </div>
-            <Link href={activePlan ? `/mealplans/${activePlan.id}` : "/plans"} className="card-action-link link-green">
+            <Link href={activePlan ? `/mealplans/${activePlan.id}` : "/mealplans/new"} className="card-action-link link-green">
               {activePlan ? "View Plan" : "Plan Now"}
             </Link>
           </div>
@@ -70,15 +72,17 @@ export default async function Dashboard() {
             <span style={{ color: '#10b981' }}>👥</span> Single Recipe Prep
           </h3>
           <div className="form-row">
-            <div className="form-group">
+            <div className="form-group" style={{ flex: 2 }}>
               <label className="form-label">SELECT RECIPE</label>
               <select defaultValue="">
                 <option value="" disabled>Choose a recipe...</option>
-                <option value="test">Chicken & Broccoli</option>
+                {recipes.map((r: any) => (
+                    <option key={r.id} value={r.id}>{r.title}</option>
+                ))}
               </select>
             </div>
-            <div className="form-group">
-              <label className="form-label">NUMBER OF PEOPLE</label>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">PEOPLE</label>
               <input type="number" defaultValue={2} />
             </div>
           </div>

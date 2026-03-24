@@ -47,18 +47,31 @@ export default function RecipesPage() {
              const ings = JSON.parse(r.ingredients);
              const insts = JSON.parse(r.instructions);
              return (
-              <div key={r.id} className="card">
-                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                     <h3 style={{ margin: 0, paddingRight: "1rem", fontSize: "1.2rem" }}>{r.title}</h3>
-                     <span style={{ fontSize: "0.75rem", padding: "0.2rem 0.6rem", background: "var(--bg-secondary)", borderRadius: "4px", color: "var(--accent-primary)", whiteSpace: "nowrap" }}>
-                         {r.energyLevel} Energy
-                     </span>
-                 </div>
-                 <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-                     {ings.length} Ingredients • {insts.length} Steps
-                 </p>
-                 <button onClick={() => deleteRecipe(r.id)} className="btn btn-secondary" style={{ width: "100%", borderColor: "rgba(248, 81, 73, 0.4)", color: "#f85149" }}>Delete Recipe</button>
-              </div>
+               <div key={r.id} className="card">
+                  <div className="card-header">
+                      <div className="card-icon-wrapper icon-green">🥗</div>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: "0.75rem", padding: "0.2rem 0.6rem", background: "var(--brand-green-light)", borderRadius: "4px", color: "var(--brand-green)", fontWeight: 700 }}>
+                            {r.energyLevel}
+                        </span>
+                      </div>
+                  </div>
+                  <h3 className="card-title">{r.title}</h3>
+                  <div style={{ display: 'flex', gap: '0.8rem', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.5rem', fontWeight: 500 }}>
+                    <span>👥 {r.servings} Servings</span>
+                    <span>🥕 {ings.length} items</span>
+                  </div>
+                  
+                  <div style={{ marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
+                    <Link href={`/recipes/${r.id}`} className="btn btn-teal" style={{ flex: 1 }}>Open</Link>
+                    <Link href={`/recipes/${r.id}/edit`} className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', width: 'auto' }}>
+                        ✏️
+                    </Link>
+                    <button onClick={() => deleteRecipe(r.id)} className="btn btn-secondary" style={{ width: 'auto' }}>
+                        🗑️
+                    </button>
+                  </div>
+               </div>
           )
         })}
         {recipes.length === 0 && (

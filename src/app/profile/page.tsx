@@ -8,7 +8,13 @@ export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [profiles, setProfiles] = useState<any[]>([]);
-  const [newProfile, setNewProfile] = useState({ name: "", objective: "", dietaryRestrictions: "" });
+  const [newProfile, setNewProfile] = useState({ 
+    name: "", 
+    objective: "", 
+    dietaryRestrictions: "",
+    age: "",
+    gender: ""
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +43,7 @@ export default function ProfilePage() {
     });
     setLoading(false);
     if (res.ok) {
-        setNewProfile({ name: "", objective: "", dietaryRestrictions: "" });
+        setNewProfile({ name: "", objective: "", dietaryRestrictions: "", age: "", gender: "" });
         fetchProfiles();
     }
   };
@@ -56,25 +62,33 @@ export default function ProfilePage() {
 
   return (
     <div className="fade-in-up">
-      <h2>Household Profiles</h2>
+      <h1 style={{ marginBottom: '0.5rem' }}>👨‍👩‍👧‍👦 Family Profiles</h1>
       <p style={{ color: "var(--text-secondary)", marginBottom: "2rem" }}>
         Manage members of your household, their nutritional objectives, and restrictions. We use this to optimize the meal plan recommendations.
       </p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem", marginBottom: "3rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem", marginBottom: "3rem" }}>
         {profiles.map(p => (
           <div key={p.id} className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-              <h3 style={{ margin: 0, color: "var(--accent-primary)" }}>{p.name}</h3>
+              <h3 style={{ margin: 0 }}>{p.name}</h3>
               <button 
                 onClick={() => deleteProfile(p.id)} 
                 className="btn btn-secondary" 
-                style={{ padding: "0.2rem 0.6rem", borderColor: "rgba(248, 81, 73, 0.4)", color: "#f85149", fontSize: "0.85rem" }}>
+                style={{ padding: "0.4rem 0.8rem", width: 'auto', fontSize: "0.85rem" }}>
                 Remove
               </button>
             </div>
-            <p><strong>Goal:</strong> {p.objective}</p>
-            {p.dietaryRestrictions && <p><strong>Dietary:</strong> {p.dietaryRestrictions}</p>}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
+                <p><strong>Goal:</strong> {p.objective}</p>
+                <p><strong>Gender:</strong> {p.gender || "N/A"}</p>
+                <p><strong>Age:</strong> {p.age || "N/A"}</p>
+            </div>
+            {p.dietaryRestrictions && (
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    <strong>Restrictions:</strong> {p.dietaryRestrictions}
+                </p>
+            )}
           </div>
         ))}
         {profiles.length === 0 && (
@@ -82,34 +96,60 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <div className="card" style={{ maxWidth: "600px" }}>
+      <div className="card" style={{ maxWidth: "700px" }}>
         <h3>Add New Member</h3>
         <form onSubmit={addProfile}>
-          <div className="form-group" style={{ marginTop: "1.5rem" }}>
-            <label className="form-label">Name</label>
-            <input 
-                required 
-                placeholder="E.g. Pablo"
-                value={newProfile.name} 
-                onChange={e => setNewProfile({...newProfile, name: e.target.value})} 
-            />
+          <div className="form-row" style={{ marginTop: "1.5rem" }}>
+            <div className="form-group">
+                <label className="form-label">Name</label>
+                <input 
+                    required 
+                    placeholder="E.g. Pablo"
+                    value={newProfile.name} 
+                    onChange={e => setNewProfile({...newProfile, name: e.target.value})} 
+                />
+            </div>
+            <div className="form-group">
+                <label className="form-label">Gender</label>
+                <select 
+                    value={newProfile.gender} 
+                    onChange={e => setNewProfile({...newProfile, gender: e.target.value})}
+                >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">Objective</label>
-            <select 
-                required 
-                value={newProfile.objective} 
-                onChange={e => setNewProfile({...newProfile, objective: e.target.value})} 
-                style={{ width: "100%", padding: "0.8rem", backgroundColor: "#0d1117", borderColor: "var(--border-color)", color: "var(--text-primary)", borderRadius: "8px" }}
-            >
-                <option value="" disabled>Select Objective</option>
-                <option value="Lose Weight">Lose Weight</option>
-                <option value="Gain Muscle">Gain Muscle</option>
-                <option value="Maintain Weight">Maintain Weight</option>
-                <option value="Eat Healthier">Eat Healthier</option>
-                <option value="No Specific Goal">No Specific Goal</option>
-            </select>
+
+          <div className="form-row">
+            <div className="form-group">
+                <label className="form-label">Age</label>
+                <input 
+                    type="number"
+                    placeholder="E.g. 30"
+                    value={newProfile.age} 
+                    onChange={e => setNewProfile({...newProfile, age: e.target.value})} 
+                />
+            </div>
+            <div className="form-group">
+                <label className="form-label">Objective</label>
+                <select 
+                    required 
+                    value={newProfile.objective} 
+                    onChange={e => setNewProfile({...newProfile, objective: e.target.value})} 
+                >
+                    <option value="" disabled>Select Objective</option>
+                    <option value="Lose Weight">Lose Weight</option>
+                    <option value="Gain Muscle">Gain Muscle</option>
+                    <option value="Maintain Weight">Maintain Weight</option>
+                    <option value="Eat Healthier">Eat Healthier</option>
+                    <option value="No Specific Goal">No Specific Goal</option>
+                </select>
+            </div>
           </div>
+
           <div className="form-group">
             <label className="form-label">Dietary Restrictions (Optional)</label>
             <input 
@@ -118,7 +158,7 @@ export default function ProfilePage() {
                 onChange={e => setNewProfile({...newProfile, dietaryRestrictions: e.target.value})} 
             />
           </div>
-          <button disabled={loading} type="submit" className="btn btn-primary" style={{ marginTop: "1rem" }}>
+          <button disabled={loading} type="submit" className="btn btn-teal" style={{ marginTop: "1rem" }}>
             {loading ? "Adding..." : "Add Member"}
           </button>
         </form>

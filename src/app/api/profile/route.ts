@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
-  const { name, objective, dietaryRestrictions } = await req.json();
+  const { name, objective, dietaryRestrictions, age, gender } = await req.json();
   if (!name || !objective) return new NextResponse("Missing Fields", { status: 400 });
 
   const profile = await prisma.familyProfile.create({
@@ -28,6 +28,8 @@ export async function POST(req: Request) {
       userId: (session.user as any).id,
       name,
       objective,
+      age: age ? parseInt(age) : null,
+      gender: gender || null,
       dietaryRestrictions: dietaryRestrictions || null
     }
   });

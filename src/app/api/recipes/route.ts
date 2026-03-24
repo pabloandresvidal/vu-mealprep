@@ -20,13 +20,35 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
 
-  const { title, energyLevel, ingredients, miseEnPlace, instructions } = await req.json();
+  const { title, energyLevel, servings, ingredients, miseEnPlace, instructions } = await req.json();
   
   const recipe = await prisma.recipe.create({
     data: {
       userId: (session.user as any).id,
       title,
       energyLevel,
+      servings: Number(servings) || 2,
+      ingredients: JSON.stringify(ingredients),
+      miseEnPlace: JSON.stringify(miseEnPlace),
+      instructions: JSON.stringify(instructions)
+    }
+  });
+  return NextResponse.json(recipe);
+}
+
+export async function PUT(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+
+  const { id, title, energyLevel, servings, ingredients, miseEnPlace, instructions } = await req.json();
+  if (!id) return new NextResponse("Missing ID", { status: 400 });
+
+  const recipe = await prisma.recipe.update({
+    where: { id, userId: (session.user as any).id },
+    data: {
+      title,
+      energyLevel,
+      servings: Number(servings) || 2,
       ingredients: JSON.stringify(ingredients),
       miseEnPlace: JSON.stringify(miseEnPlace),
       instructions: JSON.stringify(instructions)

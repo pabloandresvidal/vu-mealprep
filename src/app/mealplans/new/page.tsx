@@ -10,7 +10,7 @@ export default function NewMealPlanPage() {
   const [error, setError] = useState("");
   const [profiles, setProfiles] = useState<any[]>([]);
   const [data, setData] = useState({
-     startDate: "", endDate: "", energyLevel: "Medium", profileIds: [] as string[]
+     startDate: "", endDate: "", energyLevel: "Medium", profileIds: [] as string[], numPeople: 2
   });
 
   useEffect(() => {
@@ -85,15 +85,26 @@ export default function NewMealPlanPage() {
                 <input type="date" required value={data.endDate} onChange={e => setData({...data, endDate: e.target.value})} />
              </div>
          </div>
-
-         <div className="form-group" style={{ marginBottom: "2rem" }}>
-            <label className="form-label" style={{ fontSize: "1.1rem" }}>Prep Energy Level</label>
-            <select value={data.energyLevel} onChange={e => setData({...data, energyLevel: e.target.value})}>
-                <option value="Low">Low (Quick & Easy Prep)</option>
-                <option value="Medium">Medium (Standard Prep)</option>
-                <option value="High">High (Elaborate Prep)</option>
-            </select>
-         </div>
+ 
+          <div className="form-row">
+            <div className="form-group">
+                <label className="form-label" style={{ fontSize: "1.1rem" }}>Prep Energy Level</label>
+                <select value={data.energyLevel} onChange={e => setData({...data, energyLevel: e.target.value})}>
+                    <option value="Low">Low (Quick & Easy Prep)</option>
+                    <option value="Medium">Medium (Standard Prep)</option>
+                    <option value="High">High (Elaborate Prep)</option>
+                </select>
+            </div>
+            <div className="form-group">
+                <label className="form-label" style={{ fontSize: "1.1rem" }}>Number of People</label>
+                <input 
+                    type="number" 
+                    min={1} 
+                    value={data.numPeople} 
+                    onChange={e => setData({...data, numPeople: parseInt(e.target.value) || 1})} 
+                />
+            </div>
+          </div>
 
          <div className="form-group" style={{ marginBottom: "2.5rem" }}>
             <label className="form-label" style={{ fontSize: "1.1rem" }}>Cooking For (Select Members)</label>

@@ -1,44 +1,61 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { prompt } = await req.json();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+
+    const { title, description, servings, energyLevel } = await req.json();
+    if (!title) return new NextResponse("Missing title", { status: 400 });
+
     const apiKey = process.env.GEMINI_API_KEY;
-    
-    // In local development, if you don't have GEMINI_API_KEY, 
-    // it will throw an error. Make sure to add it to .env.
-    if (!apiKey) {
-      return new NextResponse("Gemini API key is missing from the environment", { status: 500 });
-    }
-    
-    // In recent Node versions, @google/genai uses the native fetch block
+    if (!apiKey) return new NextResponse("No API Key", { status: 500 });
+
     const ai = new GoogleGenAI({ apiKey });
-    
-    const sysInstruction = `You are a professional culinary AI assistant. The user wants a recipe based on their prompt. You MUST return pure valid JSON without markdown wrapping. It MUST strictly follow this interface:
+
+    const promptText = `You are an expert culinary AI. I have selected the recipe "${title}". 
+Description: ${description}
+Energy Level: ${energyLevel}
+Servings: ${servings}
+
+Please generate the DETAILED rigorous data needed to cook this.
+Return ONLY valid JSON. No markdown wrappers.
+Schema:
 {
-  "title": "Recipe Title string",
-  "energyLevel": "Low" | "Medium" | "High",
-  "ingredients": [ { "name": "Chicken Breast", "amount": "2", "unit": "lbs" } ],
-  "miseEnPlace": ["Chop the onions into small cubes", "Marinate the chicken for 10 mins"],
-  "instructions": ["Heat the pan over medium heat", "Sear chicken until golden"]
+  "ingredients": [ { "item": "string", "amount": "string e.g. 2 cups" } ],
+  "miseEnPlace": [ "string - sequence of prep steps" ],
+  "instructions": [ "string - sequence of cooking steps" ]
 }`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: { 
-            systemInstruction: sysInstruction, 
-            responseMimeType: "application/json" 
-        }
+      model: 'gemini-2.5-flash',
+      contents: promptText,
+      config: { temperature: 0.2 }
     });
 
-    if (!response.text) {
-        throw new Error("No text returned from Gemini");
-    }
+    let rawText = response.text || "{}";
+    rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+    const generated = JSON.parse(rawText);
 
-    const data = JSON.parse(response.text);
-    return NextResponse.json(data);
+    const recipe = await prisma.recipe.create({
+      data: {
+        userId: session.user.id,
+        title: title,
+        servings: Number(servings) || 2,
+        energyLevel: energyLevel || "Medium",
+        ingredients: JSON.stringify(generated.ingredients || []),
+        miseEnPlace: JSON.stringify(generated.miseEnPlace || []),
+        instructions: JSON.stringify(generated.instructions || [])
+      }
+    });
+
+    return NextResponse.json({ id: recipe.id });
   } catch (error: any) {
     console.error("AI Gen Error:", error);
     return new NextResponse(error.message || "Failed to generate recipe", { status: 500 });
