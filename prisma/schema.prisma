@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  passwordHash  String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  profiles      FamilyProfile[]
+  recipes       Recipe[]
+  mealPlans     MealPlan[]
+}
+
+model FamilyProfile {
+  id                   String   @id @default(cuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                 String
+  objective            String   // e.g., "lose weight", "gain muscle"
+  dietaryRestrictions  String?  // Optional string
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Recipe {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  energyLevel   String   // e.g., "Low", "Medium", "High"
+  ingredients   String   // JSON stringified array
+  miseEnPlace   String   // JSON stringified array
+  instructions  String   // JSON stringified array
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model MealPlan {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate     DateTime
+  endDate       DateTime
+  energyLevel   String
+  profiles      String   // JSON stringified array of profile IDs
+  recipeRefs    String   // JSON stringified array of Recipe assignments
+  generatedPlan String?  // JSON stringified optimization results
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
