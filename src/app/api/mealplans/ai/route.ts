@@ -46,7 +46,7 @@ Family Members to feed and their objectives/restrictions:
 ${JSON.stringify(profiles, null, 2)}
 
 Available Recipes in Database:
-${JSON.stringify(allRecipes.map(r => ({ id: r.id, title: r.title, energyLevel: r.energyLevel })), null, 2)}
+${JSON.stringify(allRecipes.map((r: any) => ({ id: r.id, title: r.title, energyLevel: r.energyLevel })), null, 2)}
 
 Select recipes from the available list that best fit the family's needs and energy level. Assign them to days.
 You MUST output valid JSON strictly adhering to this format:
