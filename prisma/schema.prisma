@@ -23,6 +23,8 @@ model FamilyProfile {
   userId               String
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                 String
+  age                  Int?
+  gender               String?  // e.g., "Male", "Female", "Other"
   objective            String   // e.g., "lose weight", "gain muscle"
   dietaryRestrictions  String?  // Optional string
   createdAt            DateTime @default(now())
@@ -34,6 +36,7 @@ model Recipe {
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title         String
+  servings      Int      @default(2)
   energyLevel   String   // e.g., "Low", "Medium", "High"
   ingredients   String   // JSON stringified array
   miseEnPlace   String   // JSON stringified array
