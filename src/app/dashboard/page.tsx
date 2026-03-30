@@ -1,67 +1,108 @@
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
+export default function DashboardClient() {
+  const { data: session, status } = useSession();
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [selectedRecipe, setSelectedRecipe] = useState("");
+  const [numPeople, setNumPeople] = useState(2);
+  const [loading, setLoading] = useState(false);
 
-export default async function Dashboard() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return null;
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/recipes").then(r => r.json()).then(setRecipes).catch(() => {});
+      fetch("/api/mealplans").then(r => r.json()).then(setPlans).catch(() => {});
+    }
+  }, [status]);
 
-  const recipeCount = await prisma.recipe.count({ where: { userId: session.user.id } });
-  
-  const activePlan = await prisma.mealPlan.findFirst({ 
-    where: { userId: session.user.id, endDate: { gte: new Date() } },
-    orderBy: { startDate: 'asc' }
-  });
+  const activePlan = plans.find(p => new Date(p.endDate) >= new Date());
 
-  const recipes = await prisma.recipe.findMany({ where: { userId: session.user.id } });
+  const handleSinglePrep = async () => {
+    if (!selectedRecipe) return alert("Please select a recipe first.");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/mealplans/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipeId: selectedRecipe, numPeople })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Open a new print window with the single recipe plan
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html><head><title>Single Recipe Prep - PrepMaster</title>
+            <style>
+              body { font-family: 'Segoe UI', sans-serif; padding: 2rem; color: #113f36; }
+              h1,h2,h3 { margin-bottom: 0.5rem; }
+              ul,ol { padding-left: 1.5rem; }
+              li { margin-bottom: 0.5rem; }
+            </style></head><body>
+            <h1>🍳 PrepMaster — Single Recipe Prep</h1>
+            <p>Scaled for ${numPeople} people</p><hr/>
+            <h2>🛒 Shopping List</h2>
+            <ul>${(data.shoppingList || []).map((i: any) => `<li><strong>${i.combinedAmount}</strong> ${i.item}</li>`).join('')}</ul>
+            <h2>🔪 Mise En Place</h2>
+            <ol>${(data.unifiedMiseEnPlace || []).map((s: string) => `<li>${s}</li>`).join('')}</ol>
+            <h2>👨‍🍳 Instructions</h2>
+            <ol>${(data.unifiedInstructions || []).map((s: string) => `<li>${s}</li>`).join('')}</ol>
+            </body></html>
+          `);
+          printWindow.document.close();
+        }
+      } else {
+        alert("Failed to generate single recipe plan.");
+      }
+    } catch {
+      alert("Error generating plan.");
+    }
+    setLoading(false);
+  };
+
+  if (status !== "authenticated") return <div className="spinner">Loading...</div>;
 
   return (
     <>
       <div className="dashboard-grid fade-in-up delay-1">
         {/* Total Recipes */}
         <div className="card card-orange">
-          <div className="card-icon-wrapper">
-            👨‍🍳
-          </div>
+          <div className="card-icon-wrapper">👨‍🍳</div>
           <div style={{ marginTop: 'auto' }}>
             <div className="card-title">Total Recipes</div>
             <div className="card-subtitle">In your repository</div>
           </div>
-          <div className="large-metric">{recipeCount}</div>
+          <div className="large-metric">{recipes.length}</div>
         </div>
 
         {/* Current Plan */}
         <div className="card">
           <div className="card-header">
-            <div className="card-icon-wrapper icon-green">
-              📅
-            </div>
+            <div className="card-icon-wrapper icon-green">📅</div>
             <Link href={activePlan ? `/mealplans/${activePlan.id}` : "/mealplans/new"} className="card-action-link link-green">
               {activePlan ? "View Plan" : "Plan Now"}
             </Link>
           </div>
           <div className="card-title">Current Plan</div>
           <div className="card-subtitle">
-            {activePlan ? `Active until ${activePlan.endDate.toLocaleDateString()}` : "No active plan"}
+            {activePlan ? `Active until ${new Date(activePlan.endDate).toLocaleDateString()}` : "No active plan"}
           </div>
         </div>
 
-        {/* Random Recipe */}
+        {/* AI Recipes */}
         <div className="card">
           <div className="card-header">
-            <div className="card-icon-wrapper icon-yellow">
-              ✨
-            </div>
-            <Link href="/recipes/random" className="card-action-link link-yellow">
-              Surprise Me
+            <div className="card-icon-wrapper icon-yellow">✨</div>
+            <Link href="/recipes/ai" className="card-action-link link-yellow">
+              Find Recipes
             </Link>
           </div>
-          <div className="card-title">Random Recipe</div>
-          <div className="card-subtitle">Can't decide? Let us pick!</div>
+          <div className="card-title">AI Assistant</div>
+          <div className="card-subtitle">Discover new recipes with AI</div>
         </div>
       </div>
 
@@ -74,7 +115,7 @@ export default async function Dashboard() {
           <div className="form-row">
             <div className="form-group" style={{ flex: 2 }}>
               <label className="form-label">SELECT RECIPE</label>
-              <select defaultValue="">
+              <select value={selectedRecipe} onChange={e => setSelectedRecipe(e.target.value)}>
                 <option value="" disabled>Choose a recipe...</option>
                 {recipes.map((r: any) => (
                     <option key={r.id} value={r.id}>{r.title}</option>
@@ -83,22 +124,48 @@ export default async function Dashboard() {
             </div>
             <div className="form-group" style={{ flex: 1 }}>
               <label className="form-label">PEOPLE</label>
-              <input type="number" defaultValue={2} />
+              <input type="number" value={numPeople} onChange={e => setNumPeople(parseInt(e.target.value) || 1)} min={1} />
             </div>
           </div>
-          <button className="btn btn-teal">Generate Single Recipe Plan</button>
+          <button className="btn btn-teal" onClick={handleSinglePrep} disabled={loading}>
+            {loading ? "Generating..." : "Generate Single Recipe Plan"}
+          </button>
         </div>
 
-        {/* AI Suggestions */}
+        {/* Bulk Upload */}
         <div className="card">
            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: '#113f36' }}>
-            <span style={{ color: '#eab308' }}>✨</span> AI Suggestions
+            <span style={{ color: '#eab308' }}>📦</span> Bulk Upload Recipes
           </h3>
-          <p style={{ color: 'var(--brand-teal)', marginBottom: '2rem', fontWeight: 500 }}>Get fresh ideas based on your current repository.</p>
-          <div style={{ marginTop: 'auto' }}>
-            <Link href="/recipes/ai" className="btn btn-outline" style={{width: '100%', justifyContent: 'center'}}>
-              View All Suggestions
-            </Link>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            Download a CSV template, fill it out, and upload to add many recipes at once.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <a href="/api/recipes/template" download className="btn btn-outline" style={{ justifyContent: 'center' }}>
+              📥 Download Template
+            </a>
+            <label className="btn btn-teal" style={{ cursor: 'pointer', justifyContent: 'center' }}>
+              📤 Upload Filled Template
+              <input 
+                type="file" 
+                accept=".csv" 
+                style={{ display: 'none' }} 
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  const res = await fetch('/api/recipes/upload', { method: 'POST', body: formData });
+                  if (res.ok) {
+                    const data = await res.json();
+                    alert(`Successfully imported ${data.count} recipes!`);
+                    fetch("/api/recipes").then(r => r.json()).then(setRecipes);
+                  } else {
+                    alert('Upload failed. Please check your CSV format.');
+                  }
+                }}
+              />
+            </label>
           </div>
         </div>
       </div>

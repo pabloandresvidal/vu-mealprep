@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import Navigation from "@/components/Navigation";
@@ -7,8 +7,22 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "VU Mealprep Ai",
+  title: "PrepMaster — AI Kitchen Assistant",
   description: "AI-driven meal prep planning and optimization.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PrepMaster",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#145346",
 };
 
 export default function RootLayout({
@@ -18,6 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
       <body className={inter.className}>
         <Providers>
           <div className="app-container">
@@ -31,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+

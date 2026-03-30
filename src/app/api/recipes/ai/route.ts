@@ -43,7 +43,7 @@ Schema:
     rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     const generated = JSON.parse(rawText);
 
-    const recipe = await prisma.recipe.create({
+    const recipe = await (prisma.recipe as any).create({
       data: {
         userId: session.user.id,
         title: title,

@@ -36,6 +36,29 @@ export async function POST(req: Request) {
   return NextResponse.json(profile);
 }
 
+export async function PUT(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) return new NextResponse("Missing ID", { status: 400 });
+
+  const { name, objective, dietaryRestrictions, age, gender } = await req.json();
+
+  const profile = await (prisma.familyProfile as any).update({
+    where: { id, userId: (session.user as any).id },
+    data: {
+      name,
+      objective,
+      age: age ? parseInt(age) : null,
+      gender: gender || null,
+      dietaryRestrictions: dietaryRestrictions || null
+    }
+  });
+  return NextResponse.json(profile);
+}
+
 export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
