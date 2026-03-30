@@ -16,6 +16,7 @@ model User {
   profiles      FamilyProfile[]
   recipes       Recipe[]
   mealPlans     MealPlan[]
+  schedules     MealPlanSchedule[]
 }
 
 model FamilyProfile {
@@ -56,6 +57,20 @@ model MealPlan {
   profiles      String   // JSON stringified array of profile IDs
   recipeRefs    String   // JSON stringified array of Recipe assignments
   generatedPlan String?  // JSON stringified optimization results
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model MealPlanSchedule {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayOfWeek     Int      // 0=Sunday, 1=Monday, ... 6=Saturday
+  energyLevel   String   @default("Medium")
+  daysAhead     Int      @default(7) // Generate plan for this many days ahead
+  profileIds    String   // JSON array of profile IDs to include
+  active        Boolean  @default(true)
+  lastRun       DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

@@ -15,17 +15,44 @@ export async function POST(req: Request) {
     const text = await file.text();
     const lines = text.split("\n").filter(l => l.trim());
     
-    // Skip header row
-    const dataLines = lines.slice(1);
+    // Skip header row + any instruction/blank rows
+    const dataLines = lines.filter(l => {
+      const trimmed = l.trim();
+      if (!trimmed) return false;
+      if (trimmed.startsWith("title,")) return false; // header
+      if (trimmed.startsWith("HOW TO")) return false;
+      if (trimmed.startsWith("- ")) return false;
+      if (trimmed.startsWith("DELETE")) return false;
+      return true;
+    });
+
     let count = 0;
+    const errors: string[] = [];
 
     for (const line of dataLines) {
       try {
-        // Parse CSV line (handles quoted fields)
         const fields = parseCSVLine(line);
-        if (fields.length < 6) continue;
+        if (fields.length < 6) { errors.push(`Skipped: not enough fields`); continue; }
 
-        const [title, energyLevel, servings, ingredients, miseEnPlace, instructions] = fields;
+        const [title, energyLevel, servings, ingredientsRaw, miseEnPlaceRaw, instructionsRaw] = fields;
+
+        if (!title.trim()) continue;
+
+        // Parse pipe-delimited ingredients into JSON array
+        const ingredients = ingredientsRaw.split("|").map(i => {
+          const trimmed = i.trim();
+          if (!trimmed) return null;
+          // Try to extract "amount unit name" pattern
+          const match = trimmed.match(/^([\d./]+)\s*(\w+)\s+(.+)$/);
+          if (match) {
+            return { amount: match[1], unit: match[2], name: match[3] };
+          }
+          return { amount: "", unit: "", name: trimmed };
+        }).filter(Boolean);
+
+        // Parse pipe-delimited steps into JSON arrays
+        const miseEnPlace = miseEnPlaceRaw.split("|").map(s => s.trim()).filter(Boolean);
+        const instructions = instructionsRaw.split("|").map(s => s.trim()).filter(Boolean);
 
         await (prisma.recipe as any).create({
           data: {
@@ -33,18 +60,18 @@ export async function POST(req: Request) {
             title: title.trim(),
             energyLevel: energyLevel.trim() || "Medium",
             servings: parseInt(servings) || 2,
-            ingredients: ingredients.trim(),
-            miseEnPlace: miseEnPlace.trim(),
-            instructions: instructions.trim()
+            ingredients: JSON.stringify(ingredients),
+            miseEnPlace: JSON.stringify(miseEnPlace),
+            instructions: JSON.stringify(instructions)
           }
         });
         count++;
-      } catch (e) {
-        console.error("Skipping row:", e);
+      } catch (e: any) {
+        errors.push(e.message);
       }
     }
 
-    return NextResponse.json({ count });
+    return NextResponse.json({ count, errors: errors.length > 0 ? errors : undefined });
   } catch (error: any) {
     console.error("Upload Error:", error);
     return new NextResponse(error.message || "Upload failed", { status: 500 });
