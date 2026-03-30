@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -13,7 +12,7 @@ export default function Home() {
             <span className="text-gradient">For Your Family</span>
           </h1>
           <p className="hero-subtitle">
-            Eliminate the Sunday stress. Use Gemini AI to automatically discover perfect recipes, tailor them to your family's fitness goals, and generate a unified "Prep In One Go" workflow in seconds.
+            Eliminate the Sunday stress. Use Gemini AI to automatically discover perfect recipes, tailor them to your family&apos;s fitness goals, and generate a unified &quot;Prep In One Go&quot; workflow in seconds.
           </p>
           <div className="hero-actions">
             <Link href="/register" className="btn btn-primary btn-large btn-glow">Start Planning Free</Link>
@@ -89,7 +88,7 @@ export default function Home() {
           <div className="card feature-card feature-hover">
             <div className="feature-icon-wrapper icon-green">⚡</div>
             <h3>The One-Go Optimizer</h3>
-            <p>Automatically merges the entire week's ingredients into a sleek shopping list and a deduplicated chronologic prep workflow.</p>
+            <p>Automatically merges the entire week&apos;s ingredients into a sleek shopping list and a deduplicated chronologic prep workflow.</p>
           </div>
         </div>
       </section>
@@ -103,7 +102,7 @@ export default function Home() {
               <div className="step-circle step-active" style={{background: 'var(--brand-teal)', color: 'white'}}>1</div>
               <div>
                 <h4 className="step-title" style={{margin: '0 0 0.25rem 0', color: 'var(--brand-teal)', fontSize: '1.1rem'}}>Tell AI what you want</h4>
-                <p className="step-desc" style={{margin: 0, color: 'var(--text-secondary)'}}>"High protein lunches for a couple, no dairy."</p>
+                <p className="step-desc" style={{margin: 0, color: 'var(--text-secondary)'}}>&quot;High protein lunches for a couple, no dairy.&quot;</p>
               </div>
             </div>
             <div className="step-row" style={{marginTop: '1.5rem'}}>
