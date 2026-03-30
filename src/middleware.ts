@@ -7,7 +7,7 @@ const LIMIT = 100; // max requests
 const WINDOW = 60 * 1000; // per 1 minute
 
 export function middleware(request: NextRequest) {
-  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
   const ua = request.headers.get('user-agent')?.toLowerCase() || '';
 
   // 1. Basic Bot/Scraper Protection based on UA
