@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   const { name, objective, dietaryRestrictions, age, gender } = await req.json();
   if (!name || !objective) return new NextResponse("Missing Fields", { status: 400 });
 
-  const profile = await prisma.familyProfile.create({
+  const profile = await (prisma.familyProfile as any).create({
     data: {
       userId: (session.user as any).id,
       name,

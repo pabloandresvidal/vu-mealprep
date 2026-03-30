@@ -408,3 +408,180 @@ input:focus, select:focus {
   font-weight: 500;
   padding-top: 0.25rem;
 }
+
+/* Avatar Menu */
+.avatar-menu-container {
+  position: relative;
+}
+
+.avatar-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-orange), #fc5b42);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 800;
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(254, 110, 83, 0.3);
+}
+
+.avatar-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(254, 110, 83, 0.4);
+}
+
+.avatar-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  min-width: 240px;
+  padding: 0.5rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  animation: dropdown-enter 0.2s ease-out;
+  z-index: 200;
+}
+
+@keyframes dropdown-enter {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.avatar-dropdown-header {
+  padding: 0.8rem 1rem;
+}
+
+.avatar-dropdown-email {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brand-teal);
+  word-break: break-all;
+}
+
+.avatar-dropdown-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0.3rem 0;
+}
+
+.avatar-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: 'Outfit', sans-serif;
+}
+
+.avatar-dropdown-item:hover {
+  background: var(--bg-color);
+}
+
+.avatar-dropdown-signout {
+  color: var(--brand-orange);
+}
+
+.avatar-dropdown-signout:hover {
+  background: var(--brand-orange-light);
+}
+
+/* Spinner */
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Animations */
+.fade-in-up {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.delay-1 { animation-delay: 0.1s; animation-fill-mode: both; }
+.delay-2 { animation-delay: 0.2s; animation-fill-mode: both; }
+
+/* Tag Chips for Ingredients on Hand */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  background: var(--brand-green-light);
+  color: var(--brand-green);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tag-chip button {
+  background: none;
+  border: none;
+  color: var(--brand-orange);
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+  .main-content {
+    padding: 1.5rem;
+  }
+  .pill-nav {
+    flex-wrap: wrap;
+    border-radius: 16px;
+    justify-content: center;
+  }
+  .pill-tab {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid-bottom {
+    grid-template-columns: 1fr;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+}
+

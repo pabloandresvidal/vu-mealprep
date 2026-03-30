@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
     const userId = (session.user as any).id;
 
-    const { startDate, endDate, energyLevel, profileIds, numPeople } = await req.json();
+    const { startDate, endDate, energyLevel, profileIds, numPeople, ingredientsOnHand } = await req.json();
 
     // Overlap Clash Detection
     const overlapping = await prisma.mealPlan.findFirst({
@@ -40,15 +40,22 @@ export async function POST(req: Request) {
     
     const ai = new GoogleGenAI({ apiKey });
 
+    // Build the ingredients hint
+    const ingredientsHint = ingredientsOnHand && ingredientsOnHand.length > 0
+      ? `\nThe user has these ingredients on hand: ${ingredientsOnHand.join(", ")}.\nSTRONGLY PREFER recipes that use these ingredients to minimize waste and grocery trips.\n`
+      : "";
+
     const prompt = `You are an expert AI meal planner. We need a meal plan from ${startDate} to ${endDate}.
 Target Energy Level (cooking effort): ${energyLevel}
-Family Members to feed and their objectives/restrictions:
-${JSON.stringify(profiles, null, 2)}
-
+Number of people to cook for: ${numPeople}
+Family Members to feed, their ages, gender, and objectives/restrictions:
+${JSON.stringify(profiles.map((p: any) => ({ name: p.name, age: p.age, gender: p.gender, objective: p.objective, dietaryRestrictions: p.dietaryRestrictions })), null, 2)}
+${ingredientsHint}
 Available Recipes in Database:
-${JSON.stringify(allRecipes.map((r: any) => ({ id: r.id, title: r.title, energyLevel: r.energyLevel })), null, 2)}
+${JSON.stringify(allRecipes.map((r: any) => ({ id: r.id, title: r.title, energyLevel: r.energyLevel, servings: r.servings })), null, 2)}
 
-Select recipes from the available list that best fit the family's needs and energy level. Assign them to days.
+Select recipes from the available list that best fit the family's needs, energy level, and ages. Assign them to days.
+Consider the ages of family members when planning — younger children may need simpler, milder foods while adults may enjoy more variety.
 You MUST output valid JSON strictly adhering to this format:
 {
   "plan": [
@@ -67,7 +74,7 @@ You MUST output valid JSON strictly adhering to this format:
     
     const generatedJson = JSON.parse(resData.text);
 
-    const savedPlan = await prisma.mealPlan.create({
+    const savedPlan = await (prisma.mealPlan as any).create({
         data: {
             userId,
             startDate: new Date(startDate),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -7,9 +8,23 @@ import Link from "next/link";
 export default function Navigation() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Highlight active tabs
   const isActive = (path: string) => pathname.startsWith(path) ? "active" : "";
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const userInitial = session?.user?.email?.charAt(0).toUpperCase() || "?";
 
   return (
     <>
@@ -24,24 +39,48 @@ export default function Navigation() {
         
         <div className="nav-user-section">
           {status === "authenticated" ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <div className="user-welcome">
-                <div className="user-welcome-title">Welcome back!</div>
-                <div className="user-welcome-sub">{session.user?.email}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }} ref={menuRef}>
+              <div className="user-welcome" style={{ display: 'none' }}>
+                {/* Hidden on mobile, shown via CSS if desired */}
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Link href="/account" className={`pill-tab ${isActive("/account")}`} style={{ padding: '0.4rem 0.8rem', width: 'auto' }}>
-                   <span style={{ fontSize: '1.2rem' }}>👤</span>
-                </Link>
-                <button onClick={() => signOut({ callbackUrl: "/" })} className="btn btn-secondary" style={{ width: 'auto', padding: '0.4rem 0.8rem' }}>
-                   Sign Out
+              <div className="avatar-menu-container">
+                <button 
+                  className="avatar-btn"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  aria-label="Account menu"
+                >
+                  <span>{userInitial}</span>
                 </button>
+                {menuOpen && (
+                  <div className="avatar-dropdown">
+                    <div className="avatar-dropdown-header">
+                      <div className="avatar-dropdown-email">{session.user?.email}</div>
+                    </div>
+                    <div className="avatar-dropdown-divider" />
+                    <Link href="/account" className="avatar-dropdown-item" onClick={() => setMenuOpen(false)}>
+                      ⚙️ Account Settings
+                    </Link>
+                    <Link href="/profile" className="avatar-dropdown-item" onClick={() => setMenuOpen(false)}>
+                      👨‍👩‍👧‍👦 Family Profiles
+                    </Link>
+                    <Link href="/history" className="avatar-dropdown-item" onClick={() => setMenuOpen(false)}>
+                      ⏱️ History
+                    </Link>
+                    <div className="avatar-dropdown-divider" />
+                    <button 
+                      onClick={() => signOut({ callbackUrl: "/" })} 
+                      className="avatar-dropdown-item avatar-dropdown-signout"
+                    >
+                      🚪 Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
             <div className="nav-links">
-              <Link href="/login" className="btn btn-outline">Log In</Link>
-              <Link href="/register" className="btn btn-primary" style={{ background: "linear-gradient(135deg, #10b981, #047857)" }}>Get Started</Link>
+              <Link href="/login" className="btn btn-outline" style={{ width: 'auto' }}>Log In</Link>
+              <Link href="/register" className="btn btn-primary" style={{ width: 'auto', background: "linear-gradient(135deg, #10b981, #047857)" }}>Get Started</Link>
             </div>
           )}
         </div>
@@ -61,9 +100,6 @@ export default function Navigation() {
             </Link>
             <Link href="/history" className={`pill-tab ${isActive("/history")}`}>
               <span className="pill-icon-teal">⏱️</span> History
-            </Link>
-            <Link href="/profile" className={`pill-tab ${isActive("/profile")}`}>
-              <span className="pill-icon-teal">👨‍👩‍👧‍👦</span> Family
             </Link>
           </div>
         </div>
