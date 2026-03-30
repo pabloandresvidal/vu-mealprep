@@ -557,31 +557,113 @@ input:focus, select:focus {
   width: auto;
 }
 
-/* Responsive */
+/* Responsive — Mobile-first optimizations */
 @media (max-width: 768px) {
   .navbar {
-    padding: 1rem 1.5rem;
+    padding: 0.8rem 1rem;
+  }
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+  }
+  .logo-main {
+    font-size: 1.2rem;
+  }
+  .logo-sub {
+    font-size: 0.6rem;
   }
   .main-content {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+  .pill-nav-container {
+    margin-top: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .pill-nav {
-    flex-wrap: wrap;
-    border-radius: 16px;
-    justify-content: center;
+    flex-wrap: nowrap;
+    border-radius: 14px;
+    gap: 0.25rem;
+    padding: 0.35rem;
   }
   .pill-tab {
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
+    font-size: 0.78rem;
+    padding: 0.45rem 0.8rem;
+    white-space: nowrap;
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  h2 {
+    font-size: 1.3rem;
   }
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
   .dashboard-grid-bottom {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .card {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+  .card-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
   .form-row {
     flex-direction: column;
+    gap: 0.75rem;
+  }
+  .btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+  .btn-large {
+    padding: 0.8rem 1.2rem !important;
+    font-size: 1rem !important;
+  }
+  .card-orange .large-metric {
+    font-size: 2.5rem;
+    top: 1rem;
+    right: 1.25rem;
+  }
+  .avatar-dropdown {
+    min-width: 200px;
+    right: -0.5rem;
+  }
+  /* Touch-friendly button and input sizing */
+  input, select, textarea {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.95rem;
   }
 }
 
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.6rem 0.8rem;
+  }
+  .logo-text-wrapper .logo-sub {
+    display: none;
+  }
+  .main-content {
+    padding: 0.8rem;
+  }
+  .pill-tab {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.6rem;
+  }
+  h1 {
+    font-size: 1.4rem;
+  }
+  .card {
+    padding: 1rem;
+  }
+}

@@ -10,13 +10,30 @@ datasource db {
 model User {
   id            String          @id @default(cuid())
   email         String          @unique
-  passwordHash  String
+  passwordHash  String          @default("")
+  partnerId     String?         // Linked partner user ID for shared data
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   profiles      FamilyProfile[]
   recipes       Recipe[]
   mealPlans     MealPlan[]
   schedules     MealPlanSchedule[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model EmailCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 model FamilyProfile {

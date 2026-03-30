@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
+      id: "credentials",
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -28,10 +29,21 @@ export const authOptions: NextAuthOptions = {
         if (!isCorrectPassword) {
           throw new Error("Invalid credentials");
         }
-        return {
-          id: user.id,
-          email: user.email,
-        };
+        return { id: user.id, email: user.email };
+      }
+    }),
+    CredentialsProvider({
+      id: "email-code",
+      name: "email-code",
+      credentials: {
+        email: { label: "Email", type: "email" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email) throw new Error("Missing email");
+        // At this point the code has already been verified by /api/auth/verify-code
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+        if (!user) throw new Error("User not found");
+        return { id: user.id, email: user.email };
       }
     })
   ],

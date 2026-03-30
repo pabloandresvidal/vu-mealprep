@@ -141,9 +141,21 @@ export default function DashboardClient() {
             Download a CSV template, fill it out, and upload to add many recipes at once.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <a href="/api/recipes/template" download className="btn btn-outline" style={{ justifyContent: 'center' }}>
+            <button onClick={() => {
+              alert(
+                "📋 Template Instructions:\n\n" +
+                "1. Open the CSV in Excel or Google Sheets\n" +
+                "2. Replace or add rows below the examples\n" +
+                "3. For ingredients, miseEnPlace, and instructions columns:\n" +
+                "   → Separate each item with a pipe character: |\n" +
+                "   → Example: 2 lbs chicken | 3 tbsp butter | 4 cloves garlic\n" +
+                "4. Save as CSV and upload below\n\n" +
+                "Click OK to download the template."
+              );
+              window.location.href = "/api/recipes/template";
+            }} className="btn btn-outline" style={{ justifyContent: 'center' }}>
               📥 Download Template
-            </a>
+            </button>
             <label className="btn btn-teal" style={{ cursor: 'pointer', justifyContent: 'center' }}>
               📤 Upload Filled Template
               <input 
