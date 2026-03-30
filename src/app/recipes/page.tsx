@@ -11,6 +11,8 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [search, setSearch] = useState("");
 
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
     if (status === "authenticated") fetchRecipes();
@@ -43,10 +45,62 @@ export default function RecipesPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
         <h2 style={{ margin: 0 }}>My Recipes</h2>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <button onClick={() => setShowBulkUpload(!showBulkUpload)} className="btn btn-outline" style={{ width: "auto" }}>📦 Bulk Upload</button>
           <Link href="/recipes/create" className="btn btn-outline" style={{ width: "auto" }}>+ Add Manually</Link>
           <Link href="/recipes/ai" className="btn btn-teal" style={{ width: "auto" }}>✨ AI Generate</Link>
         </div>
       </div>
+
+      {showBulkUpload && (
+        <div className="card fade-in-up" style={{ marginBottom: "1.5rem" }}>
+           <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: '#113f36' }}>
+            <span style={{ color: '#eab308' }}>📦</span> Bulk Upload Recipes
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            Download a CSV template, fill it out, and upload to add many recipes at once.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button onClick={() => {
+              alert(
+                "📋 Template Instructions:\n\n" +
+                "1. Open the CSV in Excel or Google Sheets\n" +
+                "2. Replace or add rows below the examples\n" +
+                "3. For ingredients, miseEnPlace, and instructions columns:\n" +
+                "   → Separate each item with a pipe character: |\n" +
+                "   → Example: 2 lbs chicken | 3 tbsp butter | 4 cloves garlic\n" +
+                "4. Save as CSV and upload below\n\n" +
+                "Click OK to download the template."
+              );
+              window.location.href = "/api/recipes/template";
+            }} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>
+              📥 Download Template
+            </button>
+            <label className="btn btn-teal" style={{ flex: 1, cursor: 'pointer', justifyContent: 'center' }}>
+              📤 Upload Filled Template
+              <input 
+                type="file" 
+                accept=".csv" 
+                style={{ display: 'none' }} 
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  const res = await fetch('/api/recipes/upload', { method: 'POST', body: formData });
+                  if (res.ok) {
+                    const data = await res.json();
+                    alert(`Successfully imported ${data.count} recipes!`);
+                    setShowBulkUpload(false);
+                    fetchRecipes();
+                  } else {
+                    alert('Upload failed. Please check your CSV format.');
+                  }
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div style={{ marginBottom: "1.5rem" }}>
